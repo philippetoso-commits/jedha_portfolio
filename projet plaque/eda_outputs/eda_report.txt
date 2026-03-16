@@ -1,0 +1,25 @@
+RAPPORT D'ANALYSE EXPLORATOIRE - Dataset UC3M-LP
+======================================================================
+
+1️  RÉPARTITION DES DONNÉES
+   • Dataset bien équilibré: 87.4% train, 8.4% val, 4.2% test
+   • Conforme aux standards ML (80-10-10 ou 87-8-4)
+
+2️  STANDARDISATION DES IMAGES
+   • Toutes les images redimensionnées à 640x640px
+   • Ratio 1:1 constant → Facilite l'entraînement du modèle
+
+3️  CONDITIONS D'ÉCLAIRAGE (Point Critique)
+   • 49% des images en conditions difficiles (nuit + faible luminosité)
+   • Seulement 8.1% en conditions optimales
+   •   Dataset très réaliste → Explique la robustesse du modèle (96.5% Recall)
+
+4️  BOUNDING BOXES
+   • Taille moyenne: 23.1% x 18.8% de l'image
+   • Grande variabilité → Plaques à différentes distances/angles
+   • Ratio moyen 1.44 → Plaques rectangulaires horizontales
+
+5️  QUALITÉ DU DATASET
+   • 24,238 annotations pour 24,238 images
+   • Couverture complète des conditions réelles (jour/nuit/ombre)
+   • Idéal pour un système ALPR robuste

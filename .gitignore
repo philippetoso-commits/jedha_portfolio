@@ -9,12 +9,15 @@
 !/projet kayak/
 !/conversion rate challenge/
 !/Uber_Pickups/
+!/PROJECTS_Deep_Learning_ATT_spam/
+!/projet plaque/
 !/.gitignore
 !/README.md
 
 # Global exclusions within projects
 **/venv/
 **/.venv/
+**/env/
 **/__pycache__/
 **/.ipynb_checkpoints/
 **/mlruns/
@@ -24,3 +27,11 @@
 **/*.pkl
 **/*.xlsx
 **/*.csv
+**/*.zip
+**/*.tar.gz
+
+# Specific heavy subfolders in projects
+/projet plaque/demo/
+/projet plaque/projetplaquetransfert/
+/projet plaque/License-Plate-Recognition-4/
+/projet plaque/testvideo/

@@ -1,0 +1,24 @@
+# Dossiers générés localement par MLflow
+mlruns/
+mlruns
+
+# Dossier d'environnement virtuel Python
+venv/
+env/
+.venv/
+
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Fichiers système (ex: Mac, Windows)
+.DS_Store
+Thumbs.db
+
+# Fichiers de données très lourds (optionnel, dé-commenter si besoin)
+# *.csv
+# *.xlsx

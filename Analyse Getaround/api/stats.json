@@ -1,0 +1,75 @@
+{
+  "total_cars": 4843,
+  "mean_price": 121.21,
+  "median_price": 119.0,
+  "min_price": 10,
+  "max_price": 422,
+  "std_price": 33.57,
+  "by_car_type": {
+    "convertible": 111.0,
+    "coupe": 151.0,
+    "estate": 114.0,
+    "hatchback": 109.0,
+    "sedan": 122.0,
+    "subcompact": 96.0,
+    "suv": 133.0,
+    "van": 123.0
+  },
+  "by_fuel": {
+    "diesel": 120.0,
+    "electro": 145.0,
+    "hybrid_petrol": 157.5,
+    "petrol": 109.0
+  },
+  "by_model_key": {
+    "Alfa Romeo": 158.0,
+    "Audi": 133.0,
+    "BMW": 118.0,
+    "Citro\u00ebn": 114.0,
+    "Ferrari": 155.0,
+    "Fiat": 93.0,
+    "Ford": 109.0,
+    "Honda": 145.0,
+    "KIA Motors": 157.0,
+    "Lamborghini": 157.5,
+    "Lexus": 193.0,
+    "Maserati": 176.0,
+    "Mazda": 67.0,
+    "Mercedes": 120.0,
+    "Mini": 204.0,
+    "Mitsubishi": 184.0,
+    "Nissan": 114.0,
+    "Opel": 158.0,
+    "PGO": 132.0,
+    "Peugeot": 107.0,
+    "Porsche": 144.5,
+    "Renault": 121.0,
+    "SEAT": 178.0,
+    "Subaru": 182.0,
+    "Suzuki": 214.0,
+    "Toyota": 132.0,
+    "Volkswagen": 141.0,
+    "Yamaha": 133.0
+  },
+  "features": {
+    "numerical": [
+      "mileage",
+      "engine_power"
+    ],
+    "categorical": [
+      "model_key",
+      "fuel",
+      "paint_color",
+      "car_type"
+    ],
+    "boolean": [
+      "private_parking_available",
+      "has_gps",
+      "has_air_conditioning",
+      "automatic_car",
+      "has_getaround_connect",
+      "has_speed_regulator",
+      "winter_tires"
+    ]
+  }
+}

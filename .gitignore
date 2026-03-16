@@ -1,0 +1,26 @@
+# Ignore everything by default
+/*
+
+# But allow these projects
+!/Analyse Getaround/
+!/Wallmart/
+!/speed_dating/
+!/The North Face ecommerce/
+!/projet kayak/
+!/conversion rate challenge/
+!/Uber_Pickups/
+!/.gitignore
+!/README.md
+
+# Global exclusions within projects
+**/venv/
+**/.venv/
+**/__pycache__/
+**/.ipynb_checkpoints/
+**/mlruns/
+**/hf_dashboard_repo/
+**/hf_api_repo/
+**/.DS_Store
+**/*.pkl
+**/*.xlsx
+**/*.csv

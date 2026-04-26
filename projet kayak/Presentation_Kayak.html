@@ -1,0 +1,222 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{font-family:sans-serif;line-height:1.6;max-width:800px;margin:0 auto;padding:20px}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ddd;padding:8px}
+th{background-color:#f2f2f2}
+pre{background-color:#f4f4f4;padding:10px;border-radius:5px;overflow-x:auto}
+code{font-family:monospace}
+blockquote{border-left:4px solid #ccc;margin:1.5em 10px;padding:0.5em 10px}
+</style></head><body><h1>Projet Kayak ✈️ — Plan Your Trip</h1>
+<p>Quelles sont les meilleures destinations en France pour partir en vacances ? Ce projet construit un pipeline de données complet — du scraping web au Data Warehouse cloud — pour répondre à cette question avec des données réelles.</p>
+<h2>1. Le contexte</h2>
+<p>Kayak (filiale de Booking Holdings, +300M$ de CA annuel) constate que <strong>70 % de ses utilisateurs voudraient plus d'informations fiables sur leurs destinations</strong> avant de réserver. L'équipe marketing souhaite créer une application de recommandation basée sur des données factuelles.</p>
+<p>Le brief du projet (<code>01-Plan_your_trip_with_Kayak.ipynb</code>) fournissait déjà un cadre assez détaillé : les 35 villes à analyser, les APIs à utiliser (Nominatim, OpenWeatherMap), la méthode de collecte (scraping Booking.com), et l'architecture Cloud cible (S3 → RDS). Mon travail a consisté à implémenter tout ça et à m'adapter quand les choses ne se passaient pas comme prévu.</p>
+<pre><code class="language-python"># Les 35 villes du périmètre (fournies par le brief)
+cities = [
+    &quot;Mont Saint Michel&quot;, &quot;St Malo&quot;, &quot;Bayeux&quot;, &quot;Le Havre&quot;, &quot;Rouen&quot;,
+    &quot;Paris&quot;, &quot;Amiens&quot;, &quot;Lille&quot;, &quot;Strasbourg&quot;, &quot;Chateau du Haut Koenigsbourg&quot;,
+    &quot;Colmar&quot;, &quot;Eguisheim&quot;, &quot;Besancon&quot;, &quot;Dijon&quot;, &quot;Annecy&quot;,
+    &quot;Grenoble&quot;, &quot;Lyon&quot;, &quot;Gorges du Verdon&quot;, &quot;Bormes les Mimosas&quot;, &quot;Cassis&quot;,
+    &quot;Marseille&quot;, &quot;Aix en Provence&quot;, &quot;Avignon&quot;, &quot;Uzes&quot;, &quot;Nimes&quot;,
+    &quot;Aigues Mortes&quot;, &quot;Saintes Maries de la mer&quot;, &quot;Collioure&quot;, &quot;Carcassonne&quot;,
+    &quot;Ariege&quot;, &quot;Toulouse&quot;, &quot;Montauban&quot;, &quot;Biarritz&quot;, &quot;Bayonne&quot;, &quot;La Rochelle&quot;
+]
+</code></pre>
+<h2>2. Collecte des données météo — API OpenWeatherMap</h2>
+<p>Première étape, directement guidée par le brief : savoir quel temps il fera dans chacune des 35 villes.</p>
+<ul>
+<li><strong>Nominatim</strong> (OpenStreetMap) convertit le nom d'une ville en coordonnées GPS. Gratuit, sans clé API.</li>
+<li><strong>OpenWeatherMap</strong> renvoie les prévisions sur 5 jours par blocs de 3 heures.</li>
+</ul>
+<pre><code class="language-python"># Géocodage d'une ville via Nominatim (suggéré par le brief)
+import requests
+
+def get_coordinates(city):
+    url = f&quot;https://nominatim.openstreetmap.org/search?q={city},France&amp;format=json&amp;limit=1&quot;
+    headers = {&quot;User-Agent&quot;: &quot;kayak-project/1.0&quot;}
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    return float(data[0]['lat']), float(data[0]['lon'])
+</code></pre>
+<p>Le <strong>score météo</strong> est un choix personnel — le brief laissait la liberté de la formule (<em>"you can have different opinions on what a nice weather would be like 😎"</em>) :</p>
+<pre><code>Score = Température Moyenne − (Pluie Totale en mm × 2)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Rang</th>
+<th>Ville</th>
+<th>Temp. Moy.</th>
+<th>Pluie</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Bormes-les-Mimosas</td>
+<td>14.6°C</td>
+<td>0.6 mm</td>
+<td>13.4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cassis</td>
+<td>15.0°C</td>
+<td>2.6 mm</td>
+<td>9.8</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Marseille</td>
+<td>15.4°C</td>
+<td>3.0 mm</td>
+<td>9.4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Aix-en-Provence</td>
+<td>15.0°C</td>
+<td>2.9 mm</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>La Rochelle</td>
+<td>11.6°C</td>
+<td>2.5 mm</td>
+<td>6.6</td>
+</tr>
+</tbody>
+</table>
+<h2>3. Scraping des hôtels — Booking.com</h2>
+<p>C'est ici que la théorie du brief s'est heurtée à la réalité. Le plan demandait de scraper Booking.com pour récupérer les hôtels (nom, URL, note, coordonnées GPS, description). Simple sur le papier.</p>
+<p><strong>Données extraites :</strong>
+- Nom de l'hôtel, URL, note, prix, description</p>
+<pre><code class="language-python"># Extrait simplifié du spider Scrapy
+import scrapy
+
+class BookingSpider(scrapy.Spider):
+    name = &quot;booking&quot;
+
+    def parse(self, response):
+        for hotel in response.css('div[data-testid=&quot;property-card&quot;]'):
+            yield {
+                'nom_hotel': hotel.css('div[data-testid=&quot;title&quot;]::text').get(),
+                'url': hotel.css('a[data-testid=&quot;title-link&quot;]::attr(href)').get(),
+                'score': hotel.css('div[data-testid=&quot;review-score&quot;]::text').get(),
+                'prix': hotel.css('span[data-testid=&quot;price-and-discounted-price&quot;]::text').get(),
+                'description': hotel.css('div.abf093bdfe::text').get(),
+            }
+</code></pre>
+<p><strong>Ce que le brief ne disait pas :</strong> Booking.com utilise un système anti-bot AWS WAF très agressif. Impossible de scraper "naïvement". J'ai dû injecter des cookies de session valides extraits de mon navigateur et ajouter des délais entre les requêtes pour ne pas être banni.</p>
+<p>Résultat : <strong>880 hôtels scrapés</strong> sur les 35 villes.</p>
+<h3>Le problème des coordonnées GPS</h3>
+<p>Le brief suggérait de scraper les coordonnées directement. En réalité, Booking les masque dans des widgets Google Maps chargés dynamiquement — impossible à capturer avec un scraper statique. J'ai contourné le problème avec un <strong>géocodage a posteriori via Nominatim</strong> (la même API que pour les villes, mais appliquée aux adresses des hôtels).</p>
+<pre><code class="language-python"># Géocodage des hôtels — adaptation non prévue par le brief
+from geopy.geocoders import Nominatim
+import time
+
+geolocator = Nominatim(user_agent=&quot;kayak-project&quot;)
+
+def geocode_hotel(name, city):
+    query = f&quot;{name}, {city}, France&quot;
+    location = geolocator.geocode(query)
+    time.sleep(1)  # Respect du rate-limit
+    if location:
+        return location.latitude, location.longitude
+    return None, None
+</code></pre>
+<p>Après géocodage, <strong>699 hôtels</strong> sur 880 ont des coordonnées valides. Les autres avaient des adresses trop ambiguës.</p>
+<h2>4. Architecture Cloud — AWS</h2>
+<p>L'architecture Data Lake → Data Warehouse était demandée par le brief. Voici comment je l'ai implémentée :</p>
+<pre><code>                  ┌─────────────────────────────┐
+                  │     SOURCES DE DONNÉES       │
+                  │  Scrapy (Booking) + API Météo │
+                  └──────────────┬───────────────┘
+                                 │
+                                 ▼
+                  ┌─────────────────────────────┐
+                  │     DATA LAKE — Amazon S3    │
+                  │  booking_final_gps.csv       │
+                  │  weather_final.csv           │
+                  │  (Données brutes)            │
+                  └──────────────┬───────────────┘
+                                 │  ETL Pipeline
+                                 ▼
+                  ┌─────────────────────────────┐
+                  │  DATA WAREHOUSE — Amazon RDS │
+                  │  PostgreSQL (SSL)             │
+                  │  ┌─────────┐  ┌────────────┐ │
+                  │  │ hotels  │  │  weather   │ │
+                  │  │ 699 rows│  │  35 rows   │ │
+                  │  └─────────┘  └────────────┘ │
+                  └──────────────┬───────────────┘
+                                 │  SQL Queries
+                                 ▼
+                  ┌─────────────────────────────┐
+                  │     VISUALISATION — Plotly   │
+                  │  Top 5 Destinations          │
+                  │  Top 20 Hôtels               │
+                  └─────────────────────────────┘
+</code></pre>
+<h3>Pipeline ETL</h3>
+<pre><code class="language-python"># 1. EXTRACT — Téléchargement depuis S3
+obj = s3.get_object(Bucket=BUCKET_NAME, Key=&quot;booking_final_gps.csv&quot;)
+df = pd.read_csv(StringIO(obj['Body'].read().decode('utf-8')))
+
+# 2. TRANSFORM — Nettoyage des notes (les notes arrivent sous forme de texte)
+def clean_score_v2(s):
+    &quot;&quot;&quot;Transformer 'Avec une note de 8.5' en float 8.5&quot;&quot;&quot;
+    if pd.isna(s): return 0.0
+    match = re.search(r'(\d+[.,]\d+)', str(s))
+    return float(match.group(1).replace(',', '.')) if match else 0.0
+
+df['score'] = df['score'].apply(clean_score_v2)
+
+# 3. LOAD — Injection dans RDS PostgreSQL
+engine = create_engine(f&quot;postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:5432/{DB_NAME}?sslmode=require&quot;)
+df_final.to_sql('hotels', engine, if_exists='replace', index=False, chunksize=50)
+</code></pre>
+<h2>5. Résultats</h2>
+<p>Le notebook <code>meteo et cartes optimisees.ipynb</code> croise les données météo et hôtelières via des requêtes SQL, puis génère deux cartes Plotly :</p>
+<ul>
+<li><strong>Carte 1 — Top 5 Destinations</strong> : les villes avec le meilleur score météo.</li>
+<li><strong>Carte 2 — Top 20 Hôtels</strong> : les meilleurs établissements dans les zones recommandées.</li>
+</ul>
+<p><em>(Les cartes utilisent le style <code>carto-positron</code> au lieu d'OpenStreetMap, pour contourner un problème de Referrer Policy dans Jupyter.)</em></p>
+<h2>6. Bilan</h2>
+<h3>Ce qui a été livré</h3>
+<table>
+<thead>
+<tr>
+<th>Livrable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSV sur S3</td>
+<td>Données météo et hôtelières brutes</td>
+</tr>
+<tr>
+<td>Table <code>hotels</code> sur RDS</td>
+<td>699 hôtels nettoyés et géolocalisés</td>
+</tr>
+<tr>
+<td>Table <code>weather</code> sur RDS</td>
+<td>35 villes avec scores météo</td>
+</tr>
+<tr>
+<td>2 cartes Plotly</td>
+<td>Top 5 destinations + Top 20 hôtels</td>
+</tr>
+</tbody>
+</table>
+<h3>Ce qui pourrait être amélioré</h3>
+<ul>
+<li><strong>Centraliser l'ETL</strong> : Avoir un seul notebook ETL au lieu de deux.</li>
+<li><strong>Automatiser</strong> : Planifier via AWS Lambda ou Airflow pour des données toujours à jour.</li>
+<li><strong>Enrichir le scoring</strong> : Intégrer l'humidité, le vent, ou un score NLP sur les descriptions d'hôtels.</li>
+<li><strong>Interface utilisateur</strong> : Déployer un dashboard Streamlit pour filtrer par budget et température.</li>
+</ul></body></html>

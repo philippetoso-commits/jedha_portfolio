@@ -1,0 +1,86 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{font-family:sans-serif;line-height:1.6;max-width:800px;margin:0 auto;padding:20px}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ddd;padding:8px}
+th{background-color:#f2f2f2}
+pre{background-color:#f4f4f4;padding:10px;border-radius:5px;overflow-x:auto}
+code{font-family:monospace}
+blockquote{border-left:4px solid #ccc;margin:1.5em 10px;padding:0.5em 10px}
+</style></head><body><h1>Questions Fréquentes — Projet Kayak ✈️</h1>
+<p>Ce document répond aux questions qu'on pourrait se poser en parcourant le projet. J'ai essayé d'être transparent sur mes choix, y compris ceux qui ne sont pas parfaits.</p>
+<hr />
+<h3>Pourquoi ne pas avoir scrapé directement les coordonnées GPS depuis Booking.com ?</h3>
+<p>Le brief (<code>01-Plan_your_trip_with_Kayak.ipynb</code>) suggérait effectivement de récupérer la latitude et la longitude de chaque hôtel lors du scraping. En pratique, Booking ne les affiche pas dans le HTML statique : les coordonnées sont chargées dynamiquement par JavaScript dans un widget Google Maps, ce qui les rend invisibles à un scraper comme Scrapy.</p>
+<p>J'ai donc fait en deux temps :
+1. <strong>Scraping</strong> (<code>booking avec description.ipynb</code>) : récupération de tout ce qui est accessible dans le DOM statique (nom, URL, note, prix, description).
+2. <strong>Géocodage</strong> (<code>geocodageafterscrap.ipynb</code>) : passage des adresses dans l'API Nominatim pour obtenir les coordonnées GPS a posteriori.</p>
+<p>C'est une adaptation que le brief ne prévoyait pas, mais c'est une approche classique en Data Engineering quand une source ne fournit pas la donnée attendue.</p>
+<hr />
+<h3>Pourquoi Booking.com bloque-t-il le scraping ? Comment ça a été contourné ?</h3>
+<p>Le brief ne le mentionnait pas, mais Booking utilise un système anti-bot très agressif basé sur <strong>AWS WAF</strong>. Dès qu'un robot est détecté, le serveur renvoie une page de challenge JavaScript (code 202) au lieu des résultats.</p>
+<p>Voici les techniques utilisées pour passer :
+- <strong>Cookies de session valides</strong> extraits d'un navigateur réel (<code>cookie.txt</code>), injectés dans chaque requête Scrapy.
+- <strong>User-Agent réaliste</strong> et headers HTTP imitant Chrome.
+- <strong>Délai entre les requêtes</strong> (<code>DOWNLOAD_DELAY</code>) pour éviter le bannissement.</p>
+<p>Important à noter : ces techniques sont fragiles. Les cookies expirent au bout de quelques heures, et c'est pour ça que le CSV de résultats (<code>booking_full_data.csv</code>) a été sauvegardé comme "snapshot" de référence sur S3.</p>
+<hr />
+<h3>Pourquoi y a-t-il deux fichiers CSV pour les hôtels ?</h3>
+<p>Le fichier <code>booking_full_data-save.csv</code> est une sauvegarde manuelle faite avant une phase de nettoyage. C'est une habitude un peu artisanale (dans un projet industriel, on utiliserait du versioning de données), mais ça a fait office de filet de sécurité.</p>
+<p>Ce fichier peut être supprimé sans impact — c'est <code>booking_final_gps.csv</code> (enrichi avec les coordonnées GPS) qui est utilisé en aval.</p>
+<hr />
+<h3>Pourquoi l'ETL est-elle répartie sur deux notebooks ?</h3>
+<p>Bonne question, et la réponse honnête c'est que ce n'est pas idéal. Le chargement en base est réparti entre :
+- <code>etlbooking.ipynb</code> pour les hôtels (S3 → nettoyage → table <code>hotels</code> dans RDS).
+- <code>meteo et cartes optimisees.ipynb</code> pour la météo (upload S3 → table <code>weather</code> dans RDS) <strong>et</strong> la visualisation.</p>
+<p>L'idéal aurait été de centraliser toute la logique ETL dans un seul notebook et de séparer la visualisation. Cela dit, chaque notebook est autonome et le résultat final (les deux tables dans RDS, correctement remplies) est identique.</p>
+<hr />
+<h3>Comment le score météo est-il calculé ?</h3>
+<p>Le score est calculé dans <code>meteo api booking v3.ipynb</code> avec cette formule :</p>
+<pre><code>Score = Température Moyenne − (Pluie Totale en mm × 2)
+</code></pre>
+<p>L'idée : un voyageur cherche un endroit chaud et sec. La température est un bonus, la pluie une pénalité.</p>
+<p>Le brief laissait explicitement le choix de la méthode (<em>"you can have different opinions on what nice weather would be like 😎"</em>). J'aurais pu intégrer l'humidité ou le vent, mais pour un premier déploiement, la combinaison température/pluie couvre les deux critères les plus intuitifs.</p>
+<hr />
+<h3>Pourquoi utiliser S3 comme Data Lake plutôt que charger directement dans RDS ?</h3>
+<p>L'architecture Data Lake → Data Warehouse était demandée par le brief. Mais au-delà de la consigne, j'ai réellement compris son utilité pendant le projet :</p>
+<table>
+<thead>
+<tr>
+<th>Couche</th>
+<th>Service</th>
+<th>Ce que ça apporte</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Lake</strong></td>
+<td>Amazon S3</td>
+<td>Données brutes conservées telles quelles. On peut toujours revenir en arrière si le nettoyage introduit un bug. Coût quasi nul.</td>
+</tr>
+<tr>
+<td><strong>Data Warehouse</strong></td>
+<td>RDS PostgreSQL</td>
+<td>Données nettoyées et typées. Requêtes SQL performantes.</td>
+</tr>
+</tbody>
+</table>
+<p>La séparation est particulièrement utile quand le scraping est fragile : si les cookies expirent demain, les données brutes restent sur S3.</p>
+<hr />
+<h3>Pourquoi 699 hôtels sur 880 dans la base finale ?</h3>
+<p>Le géocodage via Nominatim ne réussit pas toujours. Certains hôtels ont des noms ambigus, des adresses en langue étrangère, ou des localisations trop vagues. Les ~180 hôtels qui manquent correspondent à ces cas.</p>
+<p>C'est un compromis de qualité délibéré : mieux vaut 699 hôtels correctement géolocalisés que 880 avec des marqueurs mal placés sur la carte.</p>
+<hr />
+<h3>Pourquoi les notes d'hôtels nécessitent un nettoyage Regex ?</h3>
+<p>Les notes récupérées par le scraper arrivent sous forme textuelle (<em>"Avec une note de 8.5"</em> ou <em>"Note : 7,2"</em>). Booking intègre la note dans une phrase descriptive, pas dans un champ numérique isolé.</p>
+<p>La fonction de nettoyage extrait le premier nombre décimal trouvé dans la chaîne, puis convertit la virgule en point pour obtenir un float Python :</p>
+<pre><code class="language-python">def clean_score_v2(s):
+    if pd.isna(s): return 0.0
+    match = re.search(r'(\d+[.,]\d+)', str(s))
+    if match:
+        return float(match.group(1).replace(',', '.'))
+    return 0.0
+</code></pre>
+<hr />
+<h3>Pourquoi <code>carto-positron</code> au lieu d'OpenStreetMap pour les cartes ?</h3>
+<p>Un problème découvert en cours de route : OpenStreetMap applique une Referrer Policy stricte qui bloque les tuiles de carte quand elles sont appelées depuis un notebook Jupyter ou un fichier HTML local. Résultat : une carte vide avec uniquement les marqueurs.</p>
+<p>Le style <code>carto-positron</code> (fourni par CARTO) n'a pas cette restriction et offre un rendu plus épuré. C'est maintenant la recommandation standard de la communauté Plotly pour les cartes interactives.</p></body></html>

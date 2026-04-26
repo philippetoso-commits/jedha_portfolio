@@ -1,47 +1,43 @@
-# Analyse de cohérence du projet Kayak
+# Rétrospective et Leçons Apprises — Projet Kayak
 
-Ce document présente une analyse de la cohérence des fichiers présents dans le répertoire `projet kayak` par rapport au plan initial défini dans `01-Plan_your_trip_with_Kayak.ipynb`.
+Ce document passe en revue la cohérence entre le brief initial (`01-Plan_your_trip_with_Kayak.ipynb`) et l'implémentation réelle. L'objectif n'est pas de chercher des erreurs, mais de comprendre les écarts entre la théorie et la pratique, et ce qu'ils m'ont appris.
 
-## 1. Vue d'ensemble
-Le projet semble globalement très cohérent et fonctionnel. L'architecture "Data Lake (S3) -> Data Warehouse (RDS) -> Visualisation" demandée est respectée. Les différentes étapes (Scraping, Météo, ETL, Visualisation) sont couvertes par des notebooks spécifiques.
+## Vue d'ensemble
 
-## 2. Analyse détaillée par fichier
+Le projet respecte l'architecture demandée : **Sources de données → Data Lake (S3) → Data Warehouse (RDS) → Visualisation (Plotly)**. Toutes les briques techniques du brief (scraping, API, ETL, stockage Cloud) sont présentes et fonctionnelles.
+
+Les écarts relevés ne sont pas des erreurs mais des **adaptations au terrain** — le genre de choses qu'on ne peut pas prévoir tant qu'on n'a pas mis les mains dans le code.
+
+## Analyse par fichier
 
 ### `booking avec description.ipynb` (Scraping)
-*   **Rôle :** Scraper les données des hôtels sur Booking.com.
-*   **Cohérence :** Le script récupère bien le nom, l'URL, la note, le prix et la description comme demandé.
-*   **Incohérence / Écart détecté :** Le plan suggérait de scraper directement les coordonnées GPS ("*Its coordinates: latitude and longitude*"). Le script actuel ne les récupère pas directement via le scraping, ce qui nécessite l'étape supplémentaire de géocodage (voir fichier suivant). C'est une adaptation technique courante (les coordonnées étant souvent cachées ou dynamiques), mais c'est une déviation par rapport à la consigne littérale.
+- **Ce que le brief demandait :** Scraper les hôtels sur Booking.com, y compris les coordonnées GPS.
+- **Ce qui s'est passé :** Le scraper récupère bien le nom, l'URL, la note, le prix et la description. Mais les coordonnées GPS sont impossibles à extraire — Booking les masque dans des widgets JavaScript dynamiques.
+- **Leçon :** Un brief peut suggérer des choses qui ne sont pas réalisables telles quelles. Il faut savoir pivoter plutôt que s'obstiner.
 
 ### `geocodageafterscrap.ipynb` (Géocodage)
-*   **Rôle :** Ajouter les coordonnées GPS (Latitude/Longitude) aux hôtels scrapés via l'API Nominatim.
-*   **Cohérence :** Ce fichier vient combler le manque du scraping précédent pour répondre à l'exigence d'avoir des coordonnées géographiques pour les cartes.
-*   **Observation :** L'utilisation de Nominatim était suggérée dans le plan pour les *villes*, ici elle est étendue aux *hôtels*, ce qui est une bonne initiative pour pallier les limites du scraping.
+- **Ce que le brief prévoyait :** Rien — ce fichier est un ajout personnel.
+- **Pourquoi il existe :** Pour compenser l'impossibilité de scraper les coordonnées GPS, j'ai étendu l'utilisation de Nominatim (suggéré par le brief pour les villes) aux hôtels eux-mêmes.
+- **Leçon :** Un outil déjà dans le projet peut servir à résoudre un problème qu'on n'avait pas anticipé.
 
 ### `meteo api booking v3.ipynb` (Météo)
-*   **Rôle :** Récupérer les prévisions météo pour les 35 villes via OpenWeatherMap et calculer un score météo.
-*   **Cohérence :** Respecte parfaitement la consigne (API, calcul de score, sauvegarde CSV).
-*   **Points forts :** Génère bien un `city_id` et sauvegarde dans `weather_final.csv`.
+- **Cohérence avec le brief :** Très bonne. Suit les suggestions (Nominatim + OpenWeatherMap) et ajoute un score météo personnel.
+- **Choix personnel :** La formule de scoring (`Temp - Pluie × 2`) — le brief laissait la liberté de la méthode.
 
-### `etlbooking.ipynb` (ETL Hôtels)
-*   **Rôle :** Pipeline ETL pour les données Hôtels (Upload S3 -> Extract S3 -> Transform -> Load RDS).
-*   **Cohérence :** Respecte l'architecture Data Lake (S3) vers Data Warehouse (RDS).
-*   **Observation :** Ce fichier se concentre uniquement sur la partie "Hôtels".
+### `etlbooking.ipynb` et `meteo et cartes optimisees.ipynb` (ETL + Visualisation)
+- **Ce que le brief demandait :** Un pipeline ETL (S3 → RDS) et des cartes Plotly.
+- **Ce qui n'est pas idéal :** La logique ETL est répartie sur deux fichiers. `etlbooking.ipynb` gère les hôtels, tandis que `meteo et cartes optimisees.ipynb` gère la météo ET la visualisation.
+- **Ce qui aurait été mieux :** Centraliser l'ETL dans un seul fichier, et séparer la visualisation.
+- **Impact réel :** Aucun. Chaque notebook est autonome, et le résultat final est correct.
 
-### `weather_and_maps_optimized.ipynb` (ETL Météo + Visualisation)
-*   **Rôle :** Pipeline ETL pour la Météo + Jointures SQL + Création des cartes.
-*   **Cohérence :** Produit bien les livrables finaux (Cartes Top 5 Destinations et Top 20 Hôtels).
-*   **Redondance / Fragmentation :** Ce notebook cumule deux responsabilités :
-    1.  **ETL Météo :** Il effectue l'upload S3 et le chargement RDS pour la météo (similaire à ce que fait `etlbooking.ipynb` pour les hôtels).
-    2.  **Analyse :** Il effectue les requêtes SQL et les visualisations.
-    *Suggestion :* Il aurait été plus "propre" d'avoir un fichier `etl_weather.ipynb` séparé, ou d'intégrer l'ETL météo dans `etlbooking.ipynb` pour avoir un seul script de chargement de données, laissant ce notebook uniquement pour l'analyse.
+## Résumé des écarts
 
-## 3. Résumé des Incohérences et Redondances
+| Type | Fichier | Description | Impact |
+|:-----|:--------|:------------|:-------|
+| Adaptation | `booking avec description.ipynb` | Pas de GPS scrapé (masqué par Booking). Compensé par `geocodageafterscrap.ipynb`. | Aucun — le résultat final est identique. |
+| Redondance | `booking_full_data-save.csv` | Sauvegarde manuelle. Artisanal mais utile comme filet de sécurité. | Peut être supprimé. |
+| Organisation | ETL sur 2 notebooks | Logique de chargement éclatée entre hôtels et météo. | Fonctionnel mais pas optimal. |
 
-| Type | Fichier concerné | Description |
-| :--- | :--- | :--- |
-| **Incohérence (Mineure)** | `booking avec description.ipynb` | Ne scrape pas les coordonnées GPS comme suggéré initialement. Corrigé par l'ajout du script `geocodageafterscrap.ipynb`. |
-| **Redondance (Fichiers)** | `booking_full_data.csv` vs `booking_full_data-save.csv` | Présence d'un fichier de sauvegarde (`-save`) qui semble être un duplicata manuel ou une version antérieure. À nettoyer si inutile. |
-| **Fragmentation (ETL)** | `etlbooking.ipynb` & `weather_and_maps_optimized.ipynb` | La logique ETL (S3 -> RDS) est éclatée sur deux fichiers différents selon la source de données (Hôtels vs Météo). Une centralisation rendrait le projet plus robuste. |
+## Ce que j'en retiens
 
-## 4. Conclusion
-Le répertoire est **cohérent** avec le projet détaillé. Toutes les briques techniques demandées (Scraping, API, S3, RDS, SQL, Plotly) sont présentes et interconnectées logiquement. Les écarts relevés relèvent davantage de choix d'implémentation (géocodage post-scraping, séparation des ETL) que de réelles erreurs.
+Le brief fournissait un cadre solide, et globalement le projet le respecte. Les écarts que j'ai rencontrés sont typiques du Data Engineering en conditions réelles : les données ne sont jamais aussi accessibles qu'on le pense, et l'organisation du code évolue au fil des problèmes rencontrés. L'important, c'est que le pipeline fonctionne de bout en bout et que les livrables sont tous présents.

@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{font-family:sans-serif;line-height:1.6;max-width:800px;margin:0 auto;padding:20px}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ddd;padding:8px}
+th{background-color:#f2f2f2}
+pre{background-color:#f4f4f4;padding:10px;border-radius:5px;overflow-x:auto}
+code{font-family:monospace}
+blockquote{border-left:4px solid #ccc;margin:1.5em 10px;padding:0.5em 10px}
+</style></head><body><h1>Rétrospective et Leçons Apprises — Projet Kayak</h1>
+<p>Ce document passe en revue la cohérence entre le brief initial (<code>01-Plan_your_trip_with_Kayak.ipynb</code>) et l'implémentation réelle. L'objectif n'est pas de chercher des erreurs, mais de comprendre les écarts entre la théorie et la pratique, et ce qu'ils m'ont appris.</p>
+<h2>Vue d'ensemble</h2>
+<p>Le projet respecte l'architecture demandée : <strong>Sources de données → Data Lake (S3) → Data Warehouse (RDS) → Visualisation (Plotly)</strong>. Toutes les briques techniques du brief (scraping, API, ETL, stockage Cloud) sont présentes et fonctionnelles.</p>
+<p>Les écarts relevés ne sont pas des erreurs mais des <strong>adaptations au terrain</strong> — le genre de choses qu'on ne peut pas prévoir tant qu'on n'a pas mis les mains dans le code.</p>
+<h2>Analyse par fichier</h2>
+<h3><code>booking avec description.ipynb</code> (Scraping)</h3>
+<ul>
+<li><strong>Ce que le brief demandait :</strong> Scraper les hôtels sur Booking.com, y compris les coordonnées GPS.</li>
+<li><strong>Ce qui s'est passé :</strong> Le scraper récupère bien le nom, l'URL, la note, le prix et la description. Mais les coordonnées GPS sont impossibles à extraire — Booking les masque dans des widgets JavaScript dynamiques.</li>
+<li><strong>Leçon :</strong> Un brief peut suggérer des choses qui ne sont pas réalisables telles quelles. Il faut savoir pivoter plutôt que s'obstiner.</li>
+</ul>
+<h3><code>geocodageafterscrap.ipynb</code> (Géocodage)</h3>
+<ul>
+<li><strong>Ce que le brief prévoyait :</strong> Rien — ce fichier est un ajout personnel.</li>
+<li><strong>Pourquoi il existe :</strong> Pour compenser l'impossibilité de scraper les coordonnées GPS, j'ai étendu l'utilisation de Nominatim (suggéré par le brief pour les villes) aux hôtels eux-mêmes.</li>
+<li><strong>Leçon :</strong> Un outil déjà dans le projet peut servir à résoudre un problème qu'on n'avait pas anticipé.</li>
+</ul>
+<h3><code>meteo api booking v3.ipynb</code> (Météo)</h3>
+<ul>
+<li><strong>Cohérence avec le brief :</strong> Très bonne. Suit les suggestions (Nominatim + OpenWeatherMap) et ajoute un score météo personnel.</li>
+<li><strong>Choix personnel :</strong> La formule de scoring (<code>Temp - Pluie × 2</code>) — le brief laissait la liberté de la méthode.</li>
+</ul>
+<h3><code>etlbooking.ipynb</code> et <code>meteo et cartes optimisees.ipynb</code> (ETL + Visualisation)</h3>
+<ul>
+<li><strong>Ce que le brief demandait :</strong> Un pipeline ETL (S3 → RDS) et des cartes Plotly.</li>
+<li><strong>Ce qui n'est pas idéal :</strong> La logique ETL est répartie sur deux fichiers. <code>etlbooking.ipynb</code> gère les hôtels, tandis que <code>meteo et cartes optimisees.ipynb</code> gère la météo ET la visualisation.</li>
+<li><strong>Ce qui aurait été mieux :</strong> Centraliser l'ETL dans un seul fichier, et séparer la visualisation.</li>
+<li><strong>Impact réel :</strong> Aucun. Chaque notebook est autonome, et le résultat final est correct.</li>
+</ul>
+<h2>Résumé des écarts</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Fichier</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Adaptation</td>
+<td style="text-align: left;"><code>booking avec description.ipynb</code></td>
+<td style="text-align: left;">Pas de GPS scrapé (masqué par Booking). Compensé par <code>geocodageafterscrap.ipynb</code>.</td>
+<td style="text-align: left;">Aucun — le résultat final est identique.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Redondance</td>
+<td style="text-align: left;"><code>booking_full_data-save.csv</code></td>
+<td style="text-align: left;">Sauvegarde manuelle. Artisanal mais utile comme filet de sécurité.</td>
+<td style="text-align: left;">Peut être supprimé.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Organisation</td>
+<td style="text-align: left;">ETL sur 2 notebooks</td>
+<td style="text-align: left;">Logique de chargement éclatée entre hôtels et météo.</td>
+<td style="text-align: left;">Fonctionnel mais pas optimal.</td>
+</tr>
+</tbody>
+</table>
+<h2>Ce que j'en retiens</h2>
+<p>Le brief fournissait un cadre solide, et globalement le projet le respecte. Les écarts que j'ai rencontrés sont typiques du Data Engineering en conditions réelles : les données ne sont jamais aussi accessibles qu'on le pense, et l'organisation du code évolue au fil des problèmes rencontrés. L'important, c'est que le pipeline fonctionne de bout en bout et que les livrables sont tous présents.</p></body></html>

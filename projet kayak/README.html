@@ -1,0 +1,179 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{font-family:sans-serif;line-height:1.6;max-width:800px;margin:0 auto;padding:20px}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ddd;padding:8px}
+th{background-color:#f2f2f2}
+pre{background-color:#f4f4f4;padding:10px;border-radius:5px;overflow-x:auto}
+code{font-family:monospace}
+blockquote{border-left:4px solid #ccc;margin:1.5em 10px;padding:0.5em 10px}
+</style></head><body><h1>KAYAK - Plan Your Trip with Data ✈️</h1>
+<p><a href="#"><img alt="Python" src="https://img.shields.io/badge/Python-3.10-3776AB?style=flat&amp;logo=python&amp;logoColor=fff" /></a>
+<a href="#"><img alt="AWS" src="https://img.shields.io/badge/AWS-232F3E?style=flat&amp;logo=amazonaws&amp;logoColor=fff" /></a>
+<a href="#"><img alt="Pandas" src="https://img.shields.io/badge/Pandas-150458?style=flat&amp;logo=pandas&amp;logoColor=fff" /></a>
+<a href="#"><img alt="Scrapy" src="https://img.shields.io/badge/Scrapy-60A5FA?style=flat&amp;logo=scrapy&amp;logoColor=fff" /></a>
+<a href="#"><img alt="Plotly" src="https://img.shields.io/badge/Plotly-3F4F75?style=flat&amp;logo=plotly&amp;logoColor=fff" /></a>
+<a href="#"><img alt="JEDHA" src="https://img.shields.io/badge/JEDHA-blueviolet?style=flat" /></a></p>
+<p>Vous vous êtes déjà demandé où partir ce week-end en étant sûr d'avoir du soleil et un bon hôtel ? C'est pour répondre à cette question — à l'échelle de 35 villes françaises — que j'ai construit ce pipeline de données.</p>
+<blockquote>
+<p>⚠️ <strong>Note :</strong> Les images présentes dans ce document sont des visuels d'illustration. Elles ne sont pas générées directement par l'exécution des notebooks Jupyter.</p>
+</blockquote>
+<p><img alt="Hero" src="img_hero.png" /></p>
+<hr />
+<h2>📖 Le projet en quelques mots</h2>
+<p>Ce projet est un exercice de <strong>Data Engineering de bout en bout</strong>, réalisé dans le cadre de la formation Data Fullstack chez JEDHA Bootcamp. Le brief (fourni dans <code>01-Plan_your_trip_with_Kayak.ipynb</code>) demandait de :</p>
+<ul>
+<li>Collecter les données météo de 35 villes françaises via des APIs.</li>
+<li>Scraper les informations hôtelières sur Booking.com.</li>
+<li>Stocker le tout dans une architecture Cloud AWS (S3 → RDS PostgreSQL).</li>
+<li>Produire des cartes interactives de recommandation.</li>
+</ul>
+<p>L'architecture, les outils et les sources de données étaient largement guidés par l'énoncé. Mon travail a consisté à implémenter ce plan et à m'adapter quand la réalité du terrain s'écartait de la théorie (spoiler : Booking.com n'aime pas les scrapers).</p>
+<hr />
+<h2>📊 Les sources de données</h2>
+<p>Le pipeline s'appuie sur trois sources, toutes suggérées par le brief :</p>
+<ul>
+<li><strong>Nominatim (OpenStreetMap)</strong> : Géocodage des 35 villes, puis des hôtels (cette deuxième utilisation est un ajout personnel pour compenser l'impossibilité de scraper les coordonnées GPS directement sur Booking).</li>
+<li><strong>OpenWeatherMap (API Forecast Standard v2.5)</strong> : Prévisions météo à 5 jours par blocs de 3 heures.</li>
+<li><strong>Booking.com (Web Scraping via Scrapy)</strong> : Extraction des données hôtelières en contournant les protections AWS WAF via injection de cookies de session.</li>
+</ul>
+<hr />
+<h2>⚙️ Installation</h2>
+<pre><code class="language-bash">cd &quot;projet kayak&quot;
+pip install pandas sqlalchemy psycopg2-binary plotly boto3 scrapy
+</code></pre>
+<p>Les clés API (OpenWeatherMap) et les credentials AWS doivent être configurés avant d'exécuter le pipeline.</p>
+<hr />
+<h2>🚀 Les notebooks du pipeline</h2>
+<p>Le projet est découpé en notebooks indépendants. Ce découpage n'est pas parfait (l'ETL est répartie sur deux fichiers au lieu d'un seul, par exemple), mais chaque brique est autonome et réexécutable séparément.</p>
+<table>
+<thead>
+<tr>
+<th>Notebook</th>
+<th>Ce qu'il fait</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>meteo api booking v3.ipynb</code></td>
+<td>Appels API OpenWeatherMap + calcul du score météo</td>
+</tr>
+<tr>
+<td><code>booking avec description.ipynb</code></td>
+<td>Scraping Booking.com (avec contournement anti-bot)</td>
+</tr>
+<tr>
+<td><code>geocodageafterscrap.ipynb</code></td>
+<td>Géocodage GPS des hôtels via Nominatim (adaptation non prévue par le brief)</td>
+</tr>
+<tr>
+<td><code>upload.ipynb</code></td>
+<td>Upload des CSV bruts vers Amazon S3</td>
+</tr>
+<tr>
+<td><code>etlbooking.ipynb</code></td>
+<td>ETL Hôtels : nettoyage Regex + chargement RDS</td>
+</tr>
+<tr>
+<td><code>meteo et cartes optimisees.ipynb</code></td>
+<td>ETL Météo + génération des cartes Plotly</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>🏗️ Architecture</h2>
+<p>L'architecture Data Lake → Data Warehouse était demandée par l'énoncé. Je l'ai implémentée comme suit :</p>
+<pre><code class="language-text">Nominatim API ──┐
+OpenWeatherMap ──┼──→ Python (Pandas) ──→ CSV bruts ──→ AWS S3 (Data Lake)
+Booking.com ────┘                                            │
+(Scrapy)                                                     ▼
+                                                  ETL (Nettoyage + Regex)
+                                                             │
+                                                             ▼
+                                                  AWS RDS PostgreSQL (Warehouse)
+                                                             │
+                                                             ▼
+                                                Plotly (Cartes carto-positron)
+</code></pre>
+<ul>
+<li><strong>S3</strong> : Stockage brut et persistant. Indispensable vu la fragilité du scraping — les cookies expirent, la structure HTML peut changer du jour au lendemain.</li>
+<li><strong>RDS</strong> : Données nettoyées, typées, prêtes à être requêtées en SQL.</li>
+</ul>
+<p>Pour aller plus loin, consultez la <a href="Synthese_Projet_Kayak.md">Synthèse du projet</a> et la <a href="FAQ.md">FAQ technique</a>.</p>
+<hr />
+<h2>💰 Coûts</h2>
+<table>
+<thead>
+<tr>
+<th>Composant</th>
+<th>Phase projet</th>
+<th>Estimation production</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AWS S3</strong></td>
+<td>Gratuit (Free Tier)</td>
+<td>~0.023 $/Go/mois</td>
+</tr>
+<tr>
+<td><strong>AWS RDS</strong></td>
+<td>Gratuit (Free Tier)</td>
+<td>Variable selon instance</td>
+</tr>
+<tr>
+<td><strong>Nominatim</strong></td>
+<td>Gratuit</td>
+<td>Gratuit</td>
+</tr>
+<tr>
+<td><strong>OpenWeatherMap</strong></td>
+<td>Gratuit (API Standard)</td>
+<td>Gratuit dans les limites</td>
+</tr>
+<tr>
+<td><strong>Total projet</strong></td>
+<td><strong>0 €</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>🛡️ RGPD &amp; Éthique</h2>
+<ul>
+<li>Aucune donnée personnelle collectée — uniquement des informations publiques sur les hôtels et la météo.</li>
+<li>Scraping avec délais entre les requêtes et headers réalistes, conformément aux bonnes pratiques.</li>
+<li>Secrets (clés API, credentials AWS) non commités dans le dépôt.</li>
+</ul>
+<hr />
+<h2>🗺️ Résultats &amp; Visualisations</h2>
+<blockquote>
+<p>⚠️ <strong>Rappel :</strong> Les captures ci-dessous sont des <strong>images d'illustration</strong> pour montrer le type de cartes que le pipeline produit. Ce ne sont pas les exports bruts des notebooks.</p>
+</blockquote>
+<p><em>Note technique : les cartes utilisent le style <code>carto-positron</code> au lieu d'OpenStreetMap, pour contourner des problèmes d'affichage liés à la Referrer Policy dans Jupyter.</em></p>
+<h3>Top 5 des Destinations</h3>
+<p>Score calculé via : <code>Température Moyenne − (Pluie Totale en mm × 2)</code></p>
+<p><img alt="Carte Météo" src="img_weather.png" /></p>
+<h3>Inventaire Hôtelier</h3>
+<p>699 hôtels géolocalisés sur les 880 scrapés.</p>
+<p><img alt="Carte Hôtels" src="img_hotels.png" /></p>
+<h3>Architecture</h3>
+<p><img alt="Architecture" src="img_architecture.png" /></p>
+<hr />
+<h2>📂 Structure du projet</h2>
+<pre><code class="language-text">projet kayak/
+├── 01-Plan_your_trip_with_Kayak.ipynb   # Brief du projet (énoncé JEDHA)
+├── meteo api booking v3.ipynb           # API Météo
+├── booking avec description.ipynb       # Scraper Booking
+├── geocodageafterscrap.ipynb            # Géocodage post-scraping
+├── upload.ipynb                         # Upload S3
+├── etlbooking.ipynb                     # ETL Hôtels
+├── meteo et cartes optimisees.ipynb     # ETL Météo + Cartes
+├── *.csv                                # Données
+├── img_*.png                            # Illustrations
+├── Synthese_Projet_Kayak.md             # Retour d'expérience détaillé
+├── FAQ.md                               # Questions techniques fréquentes
+└── README.md                            # Ce fichier
+</code></pre>
+<hr />
+<h2>✍️ Auteur</h2>
+<p>Projet réalisé par <strong>Philippe Toso</strong> dans le cadre de la formation Data Fullstack — JEDHA Bootcamp.</p></body></html>

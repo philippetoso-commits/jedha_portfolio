@@ -1,27 +1,57 @@
-# GetAround Analysis & Deployment
+# Getaround - Pricing & Delay Analysis 🚗
 
-This repository contains the deliverables for the **GetAround** pricing and delay analysis project (Jedha Bootcamp Bloc 5).
+[![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat&logo=python&logoColor=fff)](#)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=fff)](#)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=fff)](#)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=flat&logo=huggingface&logoColor=000)](#)
+[![JEDHA](https://img.shields.io/badge/JEDHA-blueviolet?style=flat)](#)
 
-##  1. Streamlit Dashboard (Delay Analysis)
-The dashboard helps the Product Manager visualize the trade-off between reducing friction (problems solved) and protecting revenue (rentals affected) when implementing a minimum delay between rentals.
+Ce projet est conçu pour aider **Getaround** (le leader européen de l'autopartage) à résoudre deux problématiques majeures : l'optimisation des prix de location et la gestion des retards au moment du check-out. 
 
- **[Live Dashboard](https://philippetos-getaround.hf.space)**  
- *[Hugging Face Space](https://huggingface.co/spaces/philippetos/GetAround)*
+> ⚠️ **Note :** Ce projet a été réalisé dans le cadre de la certification "Concepteur Développeur en Science des Données" (Bloc 5) chez JEDHA Bootcamp.
 
-##  2. FastAPI (Pricing Prediction ML)
-A deployed Machine Learning API using FastAPI that predicts the optimal rental price per day based on a car's characteristics. 
+---
 
- **[Live API (Swagger UI)](https://philippetos-getaroundapi.hf.space/docs)**  
- *[Hugging Face Space](https://huggingface.co/spaces/philippetos/GetAroundAPI)*
+## 📖 Le projet en quelques mots
 
-**Test the API endpoints from your terminal:**
+L'objectif principal est de développer un produit Data de bout en bout comprenant :
+- Un **Dashboard interactif (Streamlit)** permettant aux Product Managers d'analyser l'impact d'un seuil minimum de délai entre deux locations pour réduire les frictions liées aux retards, tout en minimisant la perte de revenus.
+- Une **API de Machine Learning (FastAPI)** capable de prédire le prix de location optimal par jour pour une voiture donnée en fonction de ses caractéristiques (modèle, kilométrage, type de carburant, options, etc.).
 
-**1. Check API Health:**
+---
+
+## 📊 Les sources de données
+
+Le projet s'appuie sur deux jeux de données fournis :
+- **Getaround Delay Analysis (`get_around_delay_analysis.csv`)** : Contient l'historique des locations, incluant l'état du check-in, le retard au check-out en minutes, et le délai avec la location précédente.
+- **Getaround Pricing (`get_around_pricing_project.csv`)** : Contient les caractéristiques de milliers de voitures louées sur la plateforme ainsi que leur prix de location journalier.
+
+---
+
+## ⚙️ Installation
+
 ```bash
-curl -X 'GET' 'https://philippetos-getaroundapi.hf.space/health' -H 'accept: application/json'
+cd "Analyse Getaround"
+pip install -r requirements.txt # si disponible, ou installez manuellement
+pip install pandas scikit-learn fastapi uvicorn streamlit
 ```
 
-**2. Make a Price Prediction (Single Car):**
+---
+
+## 🚀 Les livrables et l'architecture
+
+Le projet est divisé en plusieurs briques déployées dans le cloud :
+
+### 1. Dashboard Streamlit (Analyse des retards)
+- **[Lien du Dashboard](https://philippetos-getaround.hf.space)** (Hébergé sur Hugging Face Spaces)
+- Permet de simuler l'impact de différents seuils (par ex. 60 min, 120 min) sur les frictions résolues vs le revenu perdu.
+
+### 2. API FastAPI (Prédiction de prix)
+- **[Swagger UI de l'API](https://philippetos-getaroundapi.hf.space/docs)** (Hébergé sur Hugging Face Spaces)
+- Expose un modèle de Machine Learning entraîné pour prédire le prix.
+  
+*Exemple de requête :*
 ```bash
 curl -i -H "Content-Type: application/json" -X POST -d '{
   "model_key": "Renault",
@@ -40,17 +70,49 @@ curl -i -H "Content-Type: application/json" -X POST -d '{
 }' https://philippetos-getaroundapi.hf.space/predict
 ```
 
-**3. Get Dataset Statistics:**
-```bash
-curl -X 'GET' 'https://philippetos-getaroundapi.hf.space/cars/stats' -H 'accept: application/json'
+---
+
+## 🏗️ Architecture du Déploiement
+
+```text
+Data Brute (CSV) ──┐
+                   ├─→ Python (Jupyter) ──→ Modèles Machine Learning (.pkl)
+Analyse (EDA) ─────┘                                    │
+                                                        ▼
+                    ┌────────────────────────────────────────────────────────┐
+                    │                      Hugging Face                      │
+                    │                                                        │
+                    │   ┌────────────────────┐      ┌────────────────────┐   │
+                    │   │   Space Streamlit  │      │   Space FastAPI    │   │
+                    │   │    (Dashboard)     │      │   (API Pricing)    │   │
+                    │   └────────────────────┘      └────────────────────┘   │
+                    └────────────────────────────────────────────────────────┘
 ```
 
-##  3. Data Science Notebooks
-The complete exploratory data analysis (EDA), data cleaning, feature engineering, and Machine Learning pipeline (with MLflow tracking) are available in the `notebooks/` directory.
-- `GetAround_EDA_ML_EN.ipynb` (English)
-- `GetAround_EDA_ML_FR.ipynb` (French translation)
+---
 
-##  4. Presentation & Documentation
-- `Presentation_GetAround.md`: Slides summarizing the business problem, methods, results, and deployment.
-- `discours.md`: The 10-minute speech script to present the project.
-- `FAQ.md`: Anticipated questions and detailed answers for the Q&A session.
+## 📂 Structure du projet
+
+```text
+Analyse Getaround/
+├── hf_dashboard_repo/                   # Code source du Dashboard Streamlit
+│   ├── app.py
+│   ├── Dockerfile
+│   └── get_around_delay_analysis.csv
+├── hf_api_repo/                         # Code source de l'API FastAPI
+│   ├── app.py
+│   ├── Dockerfile
+│   └── model.pkl (ou équivalent)
+├── notebooks/                           # Notebooks d'exploration et d'entraînement ML
+│   ├── GetAround_EDA_ML_EN.ipynb
+│   └── GetAround_EDA_ML_FR.ipynb
+├── Presentation_GetAround.md            # Slides de présentation
+├── discours.md                          # Script pour l'oral
+├── FAQ.md                               # Questions/Réponses préparées
+└── README.md                            # Ce fichier
+```
+
+---
+
+## ✍️ Auteur
+Projet réalisé par **Philippe Toso** dans le cadre de la formation Data Fullstack — JEDHA Bootcamp.

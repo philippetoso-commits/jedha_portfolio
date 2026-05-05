@@ -1,4 +1,4 @@
-# Speed Dating Analysis 💘 (Tinder)
+# Speed Dating Analysis (Tinder)
 
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=fff)](#)
@@ -9,11 +9,11 @@
 Quelles sont les motivations qui incitent les individus à envisager un second rendez-vous ensemble ?  
 Ce projet explore un jeu de données rassemblant des informations sur des milliers de rencontres organisées auprès d'étudiants, pour comprendre ce qui déclenche l'envie de se revoir.
 
-> ⚠️ **Note :** Ce projet a été réalisé dans le cadre de la certification en Data Science chez JEDHA Bootcamp.
+> **Note :** Ce projet a été réalisé dans le cadre de la certification en Data Science chez JEDHA Bootcamp.
 
 ---
 
-## 📖 Le projet en quelques mots
+## Le projet en quelques mots
 
 Le but de cette Analyse Exploratoire des Données (EDA) est de fournir des insights "actionnables" à l'équipe marketing d'une application de rencontre (type Tinder). L'analyse cherche à identifier :
 - Les biais cognitifs (différence entre l'auto-évaluation et l'évaluation reçue).
@@ -22,7 +22,7 @@ Le but de cette Analyse Exploratoire des Données (EDA) est de fournir des insig
 
 ---
 
-## 📊 Les sources de données
+## Les sources de données
 
 L'analyse repose sur un jeu de données robuste de **7466 rencontres** (après nettoyage) impliquant 551 participants uniques.
 - Fichier source brut nettoyé : `SpeedDating_Cleaned.csv`
@@ -30,7 +30,7 @@ L'analyse repose sur un jeu de données robuste de **7466 rencontres** (après n
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ```bash
 cd "speed_dating"
@@ -39,7 +39,7 @@ pip install pandas matplotlib seaborn jupyter
 
 ---
 
-## 🚀 Les notebooks et fichiers
+## Les notebooks et fichiers
 
 | Fichier | Ce qu'il fait |
 |---|---|
@@ -50,7 +50,7 @@ pip install pandas matplotlib seaborn jupyter
 
 ---
 
-## 💡 Résultats et Recommandations
+## Résultats et Recommandations
 
 L'analyse des données a permis de mettre en lumière des comportements clés et de formuler plusieurs recommandations :
 
@@ -60,7 +60,7 @@ L'analyse des données a permis de mettre en lumière des comportements clés et
 
 ---
 
-## 📂 Structure du projet
+## Structure du projet
 
 ```text
 speed_dating/
@@ -75,5 +75,5 @@ speed_dating/
 
 ---
 
-## ✍️ Auteur
+## Auteur
 Projet réalisé par **Philippe Toso** dans le cadre de la formation Data Fullstack — JEDHA Bootcamp.

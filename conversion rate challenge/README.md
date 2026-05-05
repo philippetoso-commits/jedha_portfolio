@@ -1,4 +1,4 @@
-# Conversion Rate Challenge - Machine Learning & Ensembling 🏆
+# Conversion Rate Challenge - Machine Learning & Ensembling
 
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
@@ -8,19 +8,32 @@
 
 Ce dossier représente l'aboutissement d'une compétition (Hackathon / Challenge de type Kaggle) visant à prédire avec la plus grande précision possible le **taux de conversion** des utilisateurs d'un site web. 
 
-> ⚠️ **Note :** Ce projet a été réalisé dans le cadre de la certification en Data Science chez JEDHA Bootcamp et s'apparente à un "Laboratoire de R&D" intensif.
+> **Note :** Ce projet a été réalisé dans le cadre de la certification en Data Science chez JEDHA Bootcamp et s'apparente à un "Laboratoire de R&D" intensif.
 
 ---
 
-## 📖 Le projet en quelques mots
+---
 
-Le but est d'optimiser le taux de conversion (Conversion Rate Optimization - CRO) à l'aide d'algorithmes prédictifs. La tâche principale est de classer les utilisateurs (Vont-ils convertir ou non ?) en se basant sur leur comportement de navigation, leur provenance et leurs caractéristiques géographiques/démographiques.
+## Le Champion : Stratégie "ADN" (Single Model Theory)
 
-Contrairement aux autres projets, l'objectif ici n'était pas seulement de construire *un* modèle, mais de trouver le modèle mathématiquement imbattable en explorant toutes les techniques avancées d'apprentissage supervisé (Feature Engineering agressif, Hyperparameter Tuning, et Ensembling).
+Le modèle ayant remporté la **1ère place du classement** est basé sur la stratégie dite de "l'ADN du dataset" (implémentée dans  `ADN_Optimise_Final.ipynb`).
+
+### Performance Leaderboard
+| Modèle | F1-Score | Précision | Recall |
+| :--- | :--- | :--- | :--- |
+| **submission_adn_tosophilippe** | **0.7658** | **0.8002** | **0.7343** |
+
+> "Hello Philippe, bien joué, t'as pris la tête du classement" — Feedback instructeur.
+
+### Fonctionnement technique
+Plutôt que d'empiler des modèles complexes (Ensembling), cette approche repose sur la **pureté mathématique** et la physique du dataset :
+*   **Moteur** : Un unique modèle **XGBoost** (Bernoulli MLE).
+*   **Contraintes de Monotonie** : Application de contraintes strictes `(0, 0, 0, -1, 1)` — l'âge doit mathématiquement faire baisser la probabilité de conversion, tandis que le nombre de pages visitées doit la faire augmenter. Cela empêche le modèle d'apprendre du "bruit" statistique.
+*   **Optimisation de Seuil** : Recherche du seuil de probabilité optimal (trouvé à **0.385**) au lieu du standard 0.5, pour maximiser spécifiquement le F1-Score.
 
 ---
 
-## 📊 Les données et l'Exploration
+## Les données et l'Exploration
 
 - **Données d'entraînement** : `conversion_data_train.csv`
 - **Données de test (pour la soumission)** : `conversion_data_test.csv`
@@ -30,7 +43,7 @@ Le rapport généré `eda_conversion_rate_report.html` permet de comprendre les 
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ```bash
 cd "conversion rate challenge"
@@ -39,39 +52,34 @@ pip install pandas scikit-learn xgboost lightgbm catboost optuna
 
 ---
 
-## 🚀 La Modélisation et le "Laboratoire"
-
-L'ampleur du dossier (plus de 200 scripts et fichiers) témoigne d'une approche itérative et agressive pour grappiller chaque fraction de précision (F1-Score / Accuracy) sur le Leaderboard.
-
-### Les stratégies déployées :
-1. **Modèles isolés** : Tests exhaustifs de Régression Logistique, Random Forest, Gradient Boosting, XGBoost, CatBoost et réseaux de neurones simples.
-2. **Feature Engineering ("Divination / Features")** : Création de dizaines de nouvelles variables (polynômes, ratios, croisements de variables) pour aider les arbres de décision.
-3. **Optimisation Mathématique ("Optuna")** : Utilisation d'algorithmes de recherche bayésienne pour ajuster automatiquement les hyperparamètres complexes des modèles.
-4. **Ensembling & Syndicat ("Le Sénat / Pirate / Monster")** : Fusion des prédictions de plusieurs modèles de natures différentes (ex: Voting Classifier, Stacking) pour annuler les faiblesses individuelles de chaque modèle ("Sagesse de la foule").
-
-### Exemples d'expérimentations notables incluses :
-- `Simulation_Gradient_Boosting.ipynb`
-- `Optuna_Champion_Implementation.ipynb`
-- Scripts de "Syndicate" et "Audits" pour analyser les *False Negatives* ou la calibration des probabilités.
+## La Modélisation et le "Laboratoire" (R&D)
+ 
+Ce dossier présente les approches les plus performantes issues d'un laboratoire de R&D ayant exploré plus de 200 scripts et configurations. Si seuls les modèles "finalistes" sont présentés ici, l'ensemble des techniques de Data Science moderne a été mobilisé pour maximiser le F1-Score.
+ 
+### Les stratégies explorées :
+1. **Modèles isolés** : Tests de Régression Logistique, Random Forest, CatBoost et réseaux de neurones.
+2. **Exploration intensive de l'Ensembling** : Fusion de modèles (Voting, Stacking) pour tester la "sagesse de la foule".
+3. **Optimisation Mathématique ("Optuna")** : Recherche bayésienne pour le réglage fin des hyperparamètres.
+4. **Physique des données (Approche ADN)** : Simplification radicale vers un modèle XGBoost monotone, qui s'est avérée être la stratégie gagnante.
 
 ---
 
-## 📂 Structure du projet
+## Structure du projet
 
-Ce dossier fonctionne comme un "Banc d'essai". Voici les grandes catégories de fichiers :
+Ce dossier contient les modèles "finalistes" issus d'une phase de recherche intensive. 
 
 ```text
 conversion rate challenge/
-├── conversion_data_train.csv          # Dataset d'entraînement
-├── eda_conversion_rate_report.html    # Rapport d'analyse métier des datas
-├── conversion_rate.ipynb              # Notebook initial d'approche (Baseline)
-├── run_*.py / analyze_*.py            # Scripts de modélisation, d'audit et d'ensembling
-├── *_predictions.csv                  # Multiples soumissions générées pour la compétition
-├── README.md                          # Ce fichier
-└── ... (plusieurs notebooks d'expérimentation R&D)
+├── conversion_data_train.csv        # Dataset d'entraînement
+├── eda_conversion_rate_report.html  # Rapport d'analyse métier (EDA)
+├── ADN_Optimise_Final.ipynb         # LE CHAMPION (936 conversions) - Stratégie ADN
+├── HistGradientBoostingClassifier.ipynb # MODÈLE SNIPER (922 conversions)
+├── conversion_rate.ipynb            # Notebook Baseline (Approche initiale)
+├── submission_adn_tosophilippe.csv  # Soumission gagnante (Top 1 Leaderboard)
+└── README.md                        # Ce fichier
 ```
 
 ---
 
-## ✍️ Auteur
+## Auteur
 Projet réalisé par **Philippe Toso** dans le cadre de la formation Data Fullstack — JEDHA Bootcamp.

@@ -38,10 +38,17 @@ L'ensemble de l'analyse est contenu dans un notebook compatible Databricks.
 3. Importez le fichier `steam_eda.py` (Databricks le reconnait automatiquement comme un notebook grace aux balises de commentaires).
 4. Attachez un cluster Spark et cliquez sur **Run All**.
 
-## Lien du notebook Databricks
+## Acces au livrable
 
-Notebook du projet Steam (Databricks) :  
-[Ouvrir le notebook Databricks](https://dbc-bb6c41cb-1929.cloud.databricks.com/editor/notebooks/1658891342594298?o=3029848363093215)
+Le partage Databricks de ce workspace est restreint aux utilisateurs du workspace (compte requis).  
+Pour garantir l'acces au jury, le livrable est fourni directement dans ce depot :
+
+- Notebook source Databricks (format script) : `steam_eda.py`
+- Notebook Jupyter avec outputs : `steam_edaV2.ipynb`
+- Export HTML avec outputs : `steam_eda.html`
+- Capture ecran Databricks (preuve d'execution) : `databricks copie écran.png`
+
+Le notebook Databricks peut etre reimporte via **Workspace -> Import** puis execute sur un cluster Spark.
 
 ---
 
@@ -62,8 +69,11 @@ AWS S3 (Data Lake JSON) ──> Databricks Cluster ──> PySpark (DataFrames) 
 
 ```text
 projet steam/
-├── steam_eda.py      <- Notebook PySpark complet (format Databricks .py)
-└── README.md         <- Ce fichier
+├── steam_eda.py                 <- Notebook PySpark complet (format Databricks .py)
+├── steam_edaV2.ipynb            <- Notebook Jupyter avec outputs
+├── steam_eda.html               <- Export HTML avec outputs
+├── databricks copie écran.png   <- Capture ecran Databricks
+└── README.md                    <- Ce fichier
 ```
 
 ---

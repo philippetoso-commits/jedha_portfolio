@@ -19,7 +19,7 @@ Le F1-Score (plus précisément sur la classe Spam "1") calcule la moyenne harmo
 ### Q3 : La Régression Logistique (Baseline) a un très bon score de *Précision* (presque pas de Faux Positifs). Pourquoi s'embêter avec du Deep Learning coûteux ?
 
 **Réponse attendue :** 
-C'est tout le paradoxe de la Régression Logistique ici : elle est **précise**, mais son **rappel** (Recall) est très faible (autour de 70%). Cela veut dire qu'elle ne fait presque jamais d'erreurs quand elle filtre un Spam (très peu de SMS légitimes bloqués à tort), **MAIS** elle laisse passer presque 30% des vrais Spams dans la boîte de réception du client ! Du point de vue d'AT&T, laisser passer un tiers des spams n'est pas une solution viable en production, d'où le passage au Deep Learning (le Modèle C capture près de 96% des spams).
+C'est tout le paradoxe de la Régression Logistique ici : elle est **précise**, mais son **rappel** (Recall) reste plus faible que celui des meilleurs modèles de Deep Learning. Cela veut dire qu'elle fait peu d'erreurs quand elle filtre un Spam (très peu de SMS légitimes bloqués à tort), **MAIS** elle laisse passer davantage de vrais Spams dans la boîte de réception du client. Du point de vue d'AT&T, améliorer le rappel est essentiel, d'où le passage au Deep Learning. Sur les notebooks sauvegardés, les modèles neuronaux obtiennent les meilleurs F1-scores sur la classe spam.
 
 ### Q4 : Quelle est l'utilité réelle du Padding (`pad_sequences`) ? Ne perd-on pas l'information de la "longueur originelle" (EDA) qui prouvait que les Spams sont plus longs ?
 
@@ -27,11 +27,10 @@ C'est tout le paradoxe de la Régression Logistique ici : elle est **précise**,
 Le Padding est une contrainte mathématique. Un réseau de neurones standard (Dense, CNN) s'attend à recevoir en entrée des matrices/tenseurs de tailles strictes et identiques (ex: `shape=(None, 150)`). On ne peut pas lui donner une phrase de 5 mots suivie d'une phrase de 100 mots. L'ajout de 0 à la fin (`padding="post"`) permet d'homogénéiser toutes les lignes. 
 L'information sur la longueur originelle n'est pas "perdue" avec des architectures comme les Embeddings : la densité des mots vs le nombre de zéros restants donne quand même un signal clair algorithmiquement !
 
-### Q5 : Pourquoi le Modèle B (Transfert Learning HuggingFace/Sentence-Transformers) est meilleur qu'un très gros réseau construit de zéro ?
+### Q5 : Pourquoi avoir testé le Transfert Learning HuggingFace/Sentence-Transformers s'il n'est pas le meilleur modèle final ?
 
 **Réponse attendue :**
-Un réseau construit de zéro n'apprend que ce qu'il voit. Avec seulement 5 000 SMS pour s'entraîner (dont seulement 747 spams), son vocabulaire est horriblement limité. S'il rencontre demain un Spam avec le mot *"Cryptocurrency"*, il ne le connaîtra pas et l'ignorera (Out-Of-Vocabulary `<OOV>`). 
-À l'inverse, un modèle de Transfert Learning (comme BERT ou Sentence-Transformers) a été initialement entraîné par des supercalculateurs sur l'intégralité d'internet. Il connaît déjà la syntaxe de l'anglais, il comprend même la polysémie (un mot = plusieurs sens). On ne lui demande "que" de juger si le résumé du texte qu'il a compris ressemble à un spam, ce qui donne une robustesse au monde réel bien supérieure.
+Le Transfert Learning est pertinent parce qu'un modèle pré-entraîné comme Sentence-Transformers possède déjà une représentation sémantique riche de l'anglais, apprise sur de très grands corpus. Il peut donc mieux comprendre du vocabulaire absent du dataset initial. Cependant, le meilleur modèle en production n'est pas forcément le plus sophistiqué : on choisit celui qui obtient les meilleurs résultats mesurés sur le jeu de test. Dans ce projet, le réseau simple et Sentence-Transformers sont très proches ; le notebook français retient le réseau simple, tandis que la version anglaise réexécutée retient Sentence-Transformers. Cette variation reste cohérente avec un entraînement neural légèrement stochastique.
 
 ### Q6 : En analysant vos pires erreurs de prédiction à la fin du notebook, le modèle omet des spams évidents (Faux Négatifs). N'est-ce pas dangereux ?
 

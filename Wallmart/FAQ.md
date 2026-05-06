@@ -1,5 +1,4 @@
 # FAQ - Présentation Walmart Sales Detector
- 
  Cette FAQ regroupe les questions probables de l'audience ou du jury concernant les choix d'architecture Machine Learning du projet.
  
  ---

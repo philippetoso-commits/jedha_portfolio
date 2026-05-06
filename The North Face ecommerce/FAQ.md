@@ -1,10 +1,8 @@
 # FAQ – The North Face E-commerce
 ## Questions Techniques Anticipées du Jury
-
 ---
 
 ### Question 1 : Pourquoi avoir choisi DBSCAN plutôt que K-Means pour le clustering ?
-
 **Réponse attendue :**
 
 K-Means présente **deux problèmes majeurs pour du texte** :
@@ -24,7 +22,6 @@ K-Means présente **deux problèmes majeurs pour du texte** :
 ---
 
 ### Question 2 : Qu'est-ce que l'overfitting et est-ce un risque ici ?
-
 **Réponse attendue :**
 
 L'**overfitting** (surapprentissage) se produit quand un modèle apprend trop précisément les données d'entraînement — y compris le bruit — au point de mal généraliser sur de nouvelles données.
@@ -43,32 +40,30 @@ L'**overfitting** (surapprentissage) se produit quand un modèle apprend trop pr
 ---
 
 ### Question 3 : Pourquoi avoir utilisé TF-IDF plutôt que des embeddings (Word2Vec, BERT) ?
-
 **Réponse attendue :**
 
 C'est une excellente question qui permet de montrer la connaissance du spectre des approches NLP.
 
 **TF-IDF** est une représentation **bag-of-words** (sac de mots) — elle ignore l'ordre des mots et leur contexte sémantique profond. Ses avantages pour ce projet :
-- ✅ Simple, rapide, interprétable (on peut lire les termes importants)
-- ✅ Fonctionne bien avec peu de données (~500 documents)
-- ✅ Recommandé explicitement dans le sujet du projet (avec `TFIDFVectorizer`)
-- ✅ Compatible directement avec DBSCAN et TruncatedSVD sans transformation supplémentaire
+- Simple, rapide, interprétable (on peut lire les termes importants)
+- Fonctionne bien avec peu de données (~500 documents)
+- Recommandé explicitement dans le sujet du projet (avec `TFIDFVectorizer`)
+- Compatible directement avec DBSCAN et TruncatedSVD sans transformation supplémentaire
 
 **Les embeddings (BERT, Sentence-Transformers)** offriraient :
-- 🔼 Une meilleure capture du contexte sémantique (polysémie, synonymes)
-- 🔼 Des représentations plus denses et moins bruitées
+- Une meilleure capture du contexte sémantique (polysémie, synonymes)
+- Des représentations plus denses et moins bruitées
 
 Mais avec des **inconvénients** dans ce contexte :
-- ❌ Beaucoup plus lents à calculer
-- ❌ Moins interprétables (pas de termes lisibles pour les WordClouds)
-- ❌ Pas directement utilisables avec TruncatedSVD pour LSA
+- Beaucoup plus lents à calculer
+- Moins interprétables (pas de termes lisibles pour les WordClouds)
+- Pas directement utilisables avec TruncatedSVD pour LSA
 
 **En production**, avec plus de ressources, je migrerais vers des Sentence-Transformers (ex. `all-MiniLM-L6-v2`) couplés à HDBSCAN pour de meilleures performances.
 
 ---
 
 ### Question 4 : Comment évaluer la performance d'un modèle non supervisé ?
-
 **Réponse attendue :**
 
 C'est l'un des grands défis du Machine Learning non supervisé : **il n'y a pas de "bonne réponse"** à comparer.
@@ -96,14 +91,13 @@ C'est l'un des grands défis du Machine Learning non supervisé : **il n'y a pas
 ---
 
 ### Question 5 : Expliquez ce qu'est le Data Leakage et comment vous l'avez évité
-
 **Réponse attendue :**
 
 Le **Data Leakage** (fuite de données) se produit lorsque des informations du futur ou du jeu de test "contaminent" l'entraînement du modèle, produisant des résultats artificiellement bons qui ne se retrouveront pas en production.
 
 **Exemple concret de leakage :**
 ```python
-# ❌ MAUVAIS : TF-IDF ajusté sur tout le corpus AVANT le split
+# MAUVAIS : TF-IDF ajusté sur tout le corpus AVANT le split
 tfidf = TfidfVectorizer().fit(df['description'])
 X_train_tfidf = tfidf.transform(X_train)  # Le vocabulaire inclut des mots du test !
 X_test_tfidf  = tfidf.transform(X_test)
@@ -115,7 +109,7 @@ X_test_tfidf  = tfidf.transform(X_test)
 - **Cependant**, nous utilisons un `Pipeline` Scikit-Learn pour garantir que le TF-IDF est toujours ajusté (`fit`) UNIQUEMENT sur les données d'entrée, jamais sur un sous-ensemble que le modèle n'est pas censé voir
 
 ```python
-# ✅ CORRECT avec Pipeline : le preprocesseur est encapsulé
+# CORRECT avec Pipeline : le preprocesseur est encapsulé
 tfidf_pipeline = Pipeline([
     ('preprocesseur', FunctionTransformer(preprocess_text, validate=False)),
     ('tfidf', TfidfVectorizer(max_features=3000))
@@ -128,7 +122,6 @@ Ce pattern `Pipeline` est **LA bonne pratique** pour garantir la reproductibilit
 ---
 
 ### Question 6 (Bonus) : Quelle est la différence entre clustering et topic modeling, et pourquoi faire les deux ?
-
 **Réponse attendue :**
 
 **Clustering (DBSCAN) :**

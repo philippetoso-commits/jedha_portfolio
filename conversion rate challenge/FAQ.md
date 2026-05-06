@@ -1,11 +1,9 @@
 # FAQ : Conversion Rate Challenge - Soutenance & Technique
-
 *Ce document anticipe les questions techniques et métier que le jury pourrait vous poser suite à votre présentation.*
 
 ---
 
-### 🔍 Questions sur la Méthodologie
-
+### Questions sur la Méthodologie
 **Q : Pourquoi avoir choisi XGBoost plutôt qu'un Random Forest ou une Régression Logistique ?**
 *R :* XGBoost est un algorithme de Gradient Boosting qui construit des arbres de manière séquentielle pour corriger les erreurs des précédents. Il gère mieux les relations non-linéaires que la Régression Logistique et offre plus de finesse de réglage que le Random Forest. Surtout, c'est l'un des rares à permettre l'implémentation native de contraintes de monotonie.
 
@@ -17,8 +15,7 @@
 
 ---
 
-### 📊 Questions sur les Données (EDA)
-
+### Questions sur les Données (EDA)
 **Q : Quelles étaient les variables les plus importantes ?**
 *R :* Sans aucun doute `Total_Pages_Visited`. C'est le signal "fort". Ensuite viennent l'âge (relation inverse) et le fait d'être un "New User" ou non. Les sources de trafic (Direct, SEO, Ads) avaient un impact beaucoup plus marginal.
 
@@ -27,8 +24,7 @@
 
 ---
 
-### 🏆 Questions sur la Performance
-
+### Questions sur la Performance
 **Q : Vous avez gagné avec un modèle simple. Est-ce que le Stacking n'aurait pas été meilleur ?**
 *R :* J'ai testé des architectures de Stacking (mélange de CatBoost, LightGBM et XGBoost). Bien qu'elles soient performantes sur le train set, elles perdaient en généralisation sur le test set (overfitting). La "Stratégie ADN" (un seul modèle contraint) s'est avérée plus robuste et plus simple à maintenir en production.
 
@@ -37,8 +33,7 @@
 
 ---
 
-### 💼 Questions Métier (Business)
-
+### Questions Métier (Business)
 **Q : Quelle recommandation concrète donneriez-vous à l'équipe Marketing ?**
 *R :* 1. Focus sur l'engagement : Tout levier augmentant le nombre de pages vues (recommandations produits, UX fluide) augmentera mécaniquement la conversion. 
 2. Retargeting : Cibler prioritairement les utilisateurs qui ont visité plus de 10 pages mais n'ont pas encore acheté, car leur probabilité de conversion est statistiquement immense.

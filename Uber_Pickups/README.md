@@ -1,5 +1,4 @@
-# Uber Pickups - Recommandation de Zones Chaudes 🚕
-
+# Uber Pickups - Recommandation de Zones Chaudes
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
 [![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=fff)](#)
@@ -8,27 +7,24 @@
 
 Le temps d'attente est le premier facteur d'annulation d'une course. Ce projet vise à résoudre ce point de friction majeur pour **Uber** en prédisant et recommandant les "Hot-Zones" (zones de forte demande) aux chauffeurs avant même que la demande n'arrive.
 
-> ⚠️ **Note :** Ce projet a été réalisé dans le cadre de la certification en Data Science chez JEDHA Bootcamp.
+> **Note :** Ce projet a été réalisé dans le cadre de la certification en Data Science chez JEDHA Bootcamp.
 
 ---
 
-## 📖 Le projet en quelques mots
-
+## Le projet en quelques mots
 Afin d'éviter que les clients attendent plus de 5 à 7 minutes, nous avons construit un système d'Intelligence Artificielle en deux étapes :
 1. **Apprentissage Non Supervisé (Clustering)** : Découpage intelligent et dynamique de l'espace urbain de New York City en zones d'activité réelles (K-Means / DBSCAN) plutôt qu'un simple quadrillage arbitraire.
 2. **Apprentissage Supervisé (Classification)** : Entraînement d'un modèle Machine Learning (Random Forest) capable de dire au chauffeur dans quelle Hot-Zone il devrait se diriger *maintenant*, en fonction de l'heure et du jour de la semaine.
 
 ---
 
-## 📊 Les sources de données
-
+## Les sources de données
 Le projet utilise un extrait du jeu de données historique public des courses Uber à New York :
 - **Uber Trip Data (Avril 2014)** : Historique des prises en charge incluant la date, l'heure, la latitude et la longitude exactes de la commande.
 
 ---
 
-## ⚙️ Installation
-
+## Installation
 ```bash
 cd "Uber_Pickups"
 # Décompressez l'archive de données (si nécessaire)
@@ -38,8 +34,16 @@ pip install pandas scikit-learn plotly jupyter
 
 ---
 
-## 🚀 Les notebooks et fichiers
+## Livrables
+- **Notebook principal en français** : `uber_pickups_fr.ipynb`
+- **Notebook en anglais** : `uber_pickups_en.ipynb`
+- **Carte interactive des hot zones** : `uber_hotzones_kmeans_fr.html`
+- **Code source complet (GitHub)** : https://github.com/philippetoso-commits/jedha_portfolio
+- **Lien direct dossier projet** : https://github.com/philippetoso-commits/jedha_portfolio/tree/main/Uber_Pickups
 
+---
+
+## Les notebooks et fichiers
 Le projet est documenté et structuré via les fichiers suivants :
 
 | Fichier | Ce qu'il fait |
@@ -53,8 +57,7 @@ Le projet est documenté et structuré via les fichiers suivants :
 
 ---
 
-## 🏗️ Architecture et Modélisation
-
+## Architecture et Modélisation
 Le flux de traitement Machine Learning repose sur un Pipeline Scikit-Learn robuste :
 
 1. **Feature Engineering** : Extraction du *Jour* et de *l'Heure* à partir des données temporelles brutes.
@@ -64,8 +67,7 @@ Le flux de traitement Machine Learning repose sur un Pipeline Scikit-Learn robus
 
 ---
 
-## 💡 Résultats et Explicabilité
-
+## Résultats et Explicabilité
 L'analyse de l'importance des variables (*Feature Importance*) issue du Random Forest a démontré de manière mathématique le comportement de la demande :
 - **L'Heure (Hour)** : Dirige à plus de **63%** le comportement de commande.
 - **Le Jour (DayOfWeek)** : Pèse pour environ **30%**, confirmant la bascule des trajets professionnels de semaine vers les zones de loisirs/bars le week-end.
@@ -74,8 +76,7 @@ En fournissant une stratégie temporelle claire, cet algorithme permet aux chauf
 
 ---
 
-## 📂 Structure du projet
-
+## Structure du projet
 ```text
 Uber_Pickups/
 ├── uber.zip                             # Dataset brut (Lat, Lon, Date)
@@ -90,5 +91,5 @@ Uber_Pickups/
 
 ---
 
-## ✍️ Auteur
+## Auteur
 Projet réalisé par **Philippe Toso** dans le cadre de la formation Data Fullstack — JEDHA Bootcamp.

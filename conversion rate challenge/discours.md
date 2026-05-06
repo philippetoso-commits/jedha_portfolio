@@ -1,11 +1,9 @@
 # Discours : Conversion Rate Challenge - Stratégie ADN (5 minutes)
-
 *Ce script est conçu pour une présentation percutante de 5 minutes. Il met l'accent sur votre victoire au Hackathon et votre approche innovante.*
 
 ---
 
-## 🕒 [0:00 - 1:00] L'Accroche & Le Challenge
-
+## [0:00 - 1:00] L'Accroche & Le Challenge
 **Action :** Afficher la slide de titre avec le logo "1ère Place Leaderboard".
 
 "Bonjour à tous. Aujourd'hui, je vais vous parler de **performance pure**. 
@@ -16,8 +14,7 @@ Mais ce qui est intéressant, ce n'est pas seulement le résultat, c'est la mét
 
 ---
 
-## 🕒 [1:00 - 2:00] L'Exploration (EDA) : L'Évidence
-
+## [1:00 - 2:00] L'Exploration (EDA) : L'Évidence
 **Action :** Afficher un graphique montrant la corrélation entre `Total_Pages_Visited` et la conversion.
 
 "En analysant les données, une vérité a sauté aux yeux. La variable `Total_Pages_Visited` n'est pas juste un indicateur, c'est un prédicteur quasi-parfait : au-delà de 15 pages vues, le taux de conversion frôle les 100%.
@@ -26,8 +23,7 @@ Mais ce qui est intéressant, ce n'est pas seulement le résultat, c'est la mét
 
 ---
 
-## 🕒 [2:00 - 3:30] La Stratégie "ADN" (Le Secret de la Victoire)
-
+## [2:00 - 3:30] La Stratégie "ADN" (Le Secret de la Victoire)
 **Action :** Afficher les paramètres du XGBoost et les contraintes de monotonie.
 
 "Pour gagner, j'ai testé des modèles très complexes : du Stacking, du Voting, des réseaux de neurones. Mais j'ai fini par tout jeter pour revenir à une approche que j'appelle **'ADN'**.
@@ -41,8 +37,7 @@ En empêchant le modèle de 's'inventer des histoires' sur les cas particuliers,
 
 ---
 
-## 🕒 [3:30 - 4:30] L'Optimisation de Seuil
-
+## [3:30 - 4:30] L'Optimisation de Seuil
 **Action :** Afficher la courbe de F1-Score en fonction du seuil.
 
 "Enfin, la dernière étape cruciale a été l'**optimisation du seuil**. Par défaut, un modèle dit 'Oui' à 0.5 de probabilité. 
@@ -52,8 +47,7 @@ Ce réglage fin m'a permis de maximiser le rappel sans sacrifier la précision, 
 
 ---
 
-## 🕒 [4:30 - 5:00] Conclusion Business
-
+## [4:30 - 5:00] Conclusion Business
 **Action :** Afficher les 3 recommandations clés.
 
 "Pour conclure, ce projet prouve que la Data Science n'est pas une course à l'armement technologique. En comprenant la 'physique' de son business et en appliquant des contraintes métier à ses algorithmes, on obtient des modèles plus simples, plus explicables et, au final, plus performants.

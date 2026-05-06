@@ -70,6 +70,19 @@ curl -i -H "Content-Type: application/json" -X POST -d '{
 }' https://philippetos-getaroundapi.hf.space/predict
 ```
 
+## ✅ Livrables
+
+- **Dashboard en production** : https://philippetos-getaround.hf.space  
+- **API ML documentée en production** : https://philippetos-getaroundapi.hf.space/docs  
+- **Code source complet** : repository GitHub du projet (incluant notebooks, API, dashboard et fichiers de déploiement)
+
+## 🔎 Validation rapide de l'API
+
+```bash
+curl -X GET "https://philippetos-getaroundapi.hf.space/health"
+curl -X GET "https://philippetos-getaroundapi.hf.space/docs"
+```
+
 ---
 
 ## 🏗️ Architecture du Déploiement
@@ -95,22 +108,34 @@ Analyse (EDA) ─────┘                                    │
 
 ```text
 Analyse Getaround/
-├── hf_dashboard_repo/                   # Code source du Dashboard Streamlit
-│   ├── app.py
-│   ├── Dockerfile
-│   └── get_around_delay_analysis.csv
-├── hf_api_repo/                         # Code source de l'API FastAPI
-│   ├── app.py
-│   ├── Dockerfile
-│   └── model.pkl (ou équivalent)
-├── notebooks/                           # Notebooks d'exploration et d'entraînement ML
+├── README.md
+├── FAQ.md
+├── 01-Getaround_analysis.ipynb
+├── get_around_delay_analysis.xlsx
+├── get_around_pricing_project.csv
+├── notebooks/
 │   ├── GetAround_EDA_ML_EN.ipynb
 │   └── GetAround_EDA_ML_FR.ipynb
-├── Presentation_GetAround.md            # Slides de présentation
-├── discours.md                          # Script pour l'oral
-├── FAQ.md                               # Questions/Réponses préparées
-└── README.md                            # Ce fichier
+├── mlflow/
+│   └── mlruns/
+├── hf_dashboard_repo/                   # Repo Git dédié au déploiement HF du dashboard
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── get_around_delay_analysis.csv
+├── hf_api_repo/                         # Repo Git dédié au déploiement HF de l'API
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── model.pkl
+│   ├── feature_info.json
+│   └── stats.json
+├── dashboard/                           # Version locale de développement du dashboard
+└── api/                                 # Version locale de développement de l'API
 ```
+
+> Note : les dossiers `api/` et `dashboard/` sont les versions locales de développement.  
+> Les dossiers `hf_api_repo/` et `hf_dashboard_repo/` sont les répertoires Git séparés utilisés pour le déploiement sur Hugging Face Spaces.
 
 ---
 

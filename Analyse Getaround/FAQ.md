@@ -112,4 +112,17 @@ Dans ce projet, j'ai tracké les **3 modèles** (LinearRegression, RandomForest,
 
 L'intérêt pratique : si je retravaille le modèle dans 6 mois — avec de nouvelles données ou de nouveaux hyperparamètres — j'ai une **traçabilité complète** de l'historique. Je peux comparer les nouvelles performances avec les anciennes en une commande : `mlflow ui`.
 
-C'est une bonne pratique indispensable en contexte professionnel, et une exigence explicite du Bloc 5 Jedha.
+---
+
+### Q7 — Pourquoi l'endpoint `/predict` n'utilise pas le format `{"input": [[...]]}` du brief ?
+
+**Réponse :**
+
+J'ai volontairement choisi un schéma d'entrée **nommé** (ex. `model_key`, `mileage`, `fuel`, etc.) plutôt qu'un tableau anonyme `input: [[...]]` pour des raisons de robustesse produit et de maintenabilité.
+
+1. **Lisibilité métier** : chaque variable est explicite, ce qui évite toute ambiguïté sur l'ordre des colonnes.
+2. **Réduction des erreurs silencieuses** : avec un format positionnel, une inversion de colonnes peut produire une prédiction fausse sans alerte claire.
+3. **Validation automatique** : FastAPI + Pydantic valident les types et la structure d'entrée, avec une documentation Swagger plus lisible.
+4. **Évolutivité** : il est plus simple d'ajouter des features dans le temps sans casser l'API côté clients.
+
+Le choix est donc orienté **API de production** (clarté, fiabilité, maintenance), tout en respectant l'objectif du projet : un endpoint `POST /predict` recevant du JSON et retournant une prédiction JSON.

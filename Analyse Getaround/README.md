@@ -74,7 +74,8 @@ curl -i -H "Content-Type: application/json" -X POST -d '{
 
 - **Dashboard en production** : https://philippetos-getaround.hf.space  
 - **API ML documentée en production** : https://philippetos-getaroundapi.hf.space/docs  
-- **Code source complet** : repository GitHub du projet (incluant notebooks, API, dashboard et fichiers de déploiement)
+- **Code source complet (GitHub)** : https://github.com/philippetoso-commits/jedha_portfolio
+- **Lien direct dossier projet** : https://github.com/philippetoso-commits/jedha_portfolio/tree/main/Analyse%20Getaround
 
 ## 🔎 Validation rapide de l'API
 

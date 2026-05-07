@@ -44,7 +44,6 @@ Projets hors parcours FDS présents dans d’autres versions du programme (Snowf
 | Dépôt GitHub (racine) | `https://github.com/philippetoso-commits/jedha_portfolio` |
 | Démo ALPR (Hugging Face Space) | `https://huggingface.co/spaces/philippetos/projetplaques` |
 
-Remplacez ou complétez la section « Liens utiles » (LinkedIn, CV, autres Spaces) selon votre profil public.
 
 ---
 

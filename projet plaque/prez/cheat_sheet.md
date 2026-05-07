@@ -1,4 +1,4 @@
-# 📝 Cheat Sheet : ALPR Engine
+# Cheat Sheet : ALPR Engine
 
 | Onglet | Valeur Clé | Point à mentionner |
 | :--- | :--- | :--- |

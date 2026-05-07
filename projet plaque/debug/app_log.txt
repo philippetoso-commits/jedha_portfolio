@@ -1,0 +1,40 @@
+nohup: ignoring input
+/home/phili/datascience/projet plaque/demo/app.py:830: UserWarning: The parameters have been moved from the Blocks constructor to the launch() method in Gradio 6.0: theme, css. Please pass these parameters to launch() instead.
+  with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
+/home/phili/datascience/projet plaque/demo/venv/lib/python3.12/site-packages/gradio/components/dataframe.py:192: UserWarning: The `col_count` parameter is deprecated and will be removed. Please use `column_count` instead.
+  warnings.warn(
+✅ Outputs directory is writable
+🚀 Launching Inside the ALPR Engine...
+📦 Initializing ALPR Pipeline...
+📦 Loading YOLOv8 from models/best.pt...
+📦 Loading fast-plate-ocr...
+📦 Loading Brand Detection model from /home/phili/datascience/projet plaque/modelcar/my_best_model.pt...
+✅ Models loaded successfully!
+📦 Initializing Error Gallery...
+📦 Initializing Access Controller...
+✅ Database initialized with 79 residents
+✅ AccessController synced: 45 authorized plates
+📦 Initializing Database Manager...
+✅ Database initialized with 79 residents
+📦 Initializing Video Cache...
+🚀 Building Gradio Interface...
+✅ AccessController synced: 45 authorized plates
+✨ Starting Gradio Server on port 7860...
+* Running on local URL:  http://0.0.0.0:7860
+* To create a public link, set `share=True` in `launch()`.
+✅ AccessController synced: 45 authorized plates
+📤 Uploading 240JV_____1771583750.jpg to philippetos/plaques...
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  .../240JV_____1771583750.jpg: 100%|██████████| 1.65MB / 1.65MB            [A[A
+
+  .../240JV_____1771583750.jpg: 100%|██████████| 1.65MB / 1.65MB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 1.65MB / 1.65MB, 4.12MB/s  
+
+  .../240JV_____1771583750.jpg: 100%|██████████| 1.65MB / 1.65MB            [A[A
+
+  .../240JV_____1771583750.jpg: 100%|██████████| 1.65MB / 1.65MB            [A[A
+
+  .../240JV_____1771583750.jpg: 100%|██████████| 1.65MB / 1.65MB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 1.65MB / 1.65MB, 2.06MB/s  
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+  .../240JV_____1771583750.jpg: 100%|██████████| 1.65MB / 1.65MB            

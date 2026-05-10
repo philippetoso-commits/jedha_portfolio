@@ -1,6 +1,17 @@
 # FAQ - Présentation AT&T Spam Detector
 
-Cette FAQ regroupe les questions probables de l'audience ou du jury lors de la présentation, avec les réponses attendues pour justifier les choix techniques du notebook.
+Cette FAQ regroupe les questions probables de l'audience ou du jury lors de la présentation, avec les réponses attendues pour justify les choix techniques du notebook.
+
+---
+
+### Q0 : D'où proviennent les données et quelle est la taille du dataset ?
+
+**Réponse attendue :**
+Il s'agit d'un corpus public bien connu en Data Science et en NLP, souvent appelé le "SMS Spam Collection Dataset".
+Le dataset a été téléchargé directement depuis le bucket AWS fourni pour le projet :
+[https://full-stack-bigdata-datasets.s3.eu-west-3.amazonaws.com/Deep+Learning/project/spam.csv](https://full-stack-bigdata-datasets.s3.eu-west-3.amazonaws.com/Deep+Learning/project/spam.csv)
+
+Il contient précisément **5 572 SMS** originaux en anglais. L'intérêt majeur de ce jeu de données est son approche 100% linguistique : il n'y a aucune métadonnée cachée (pas de numéro d'expéditeur, pas d'horodatage). L'IA n'a donc que le texte pur pour juger s'il s'agit d'une arnaque.
 
 ---
 

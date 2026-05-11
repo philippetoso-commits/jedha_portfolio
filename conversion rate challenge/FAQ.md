@@ -1,5 +1,5 @@
 # FAQ : Conversion Rate Challenge - Soutenance & Technique
-*Ce document anticipe les questions techniques et métier que le jury pourrait vous poser suite à votre présentation.*
+
 
 ---
 
